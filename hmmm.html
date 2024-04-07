@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Address Entry</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #c22a2a;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    form {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #000000;
+      color: #bb1b1b;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+ 
+
+  <form 
+  action="https://formspree.io/f/mjvngerp" 
+  method="POST"
+  id="form"
+  >
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="address">Address:</label>
+    <input type="text" id="address" name="address" required>
+
+    <label for="Pincode">Pincode:</label>
+    <input type="text" id="Pincode" name="Pincode" required>
+
+    <button type="submit">Submit</button>
+    <button type="button" onclick="useCurrentLocation()">Use Current Location</button>
+  </form>
+
+  <!-- Google Maps API script for Places Autocomplete -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+  <script>
+    function useCurrentLocation() {
+      var addressInput = document.getElementById('address');
+      var pincodeInput = document.getElementById('Pincode');
+      
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var geocoder = new google.maps.Geocoder();
+          var latlng = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+
+          geocoder.geocode({'location': latlng}, function(results, status) {
+            if (status === 'OK') {
+              if (results[0]) {
+                for (var i = 0; i < results[0].address_components.length; i++) {
+                  var addressType = results[0].address_components[i].types[0];
+                  if (addressType === 'postal_code') {
+                    pincodeInput.value = results[0].address_components[i].long_name;
+                  }
+                }
+                addressInput.value = results[0].formatted_address;
+              } else {
+                window.alert('No results found');
+              }
+            } else {
+              window.alert('Geocoder failed due to: ' + status);
+            }
+          });
+        }, function(error) {
+          window.alert('Error getting current location: ' + error.message);
+        });
+      } else {
+        window.alert('Geolocation is not supported by this browser.');
+      }
+    }
+  </script>
+</body>
+</html>
